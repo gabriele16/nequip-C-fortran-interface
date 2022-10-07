@@ -1,2 +1,2 @@
-# nequip-C-C++-fortran-interface
+# nequip-C-fortran-interface
 Fortran - C/C++ interface for nequip
