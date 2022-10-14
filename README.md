@@ -1,7 +1,8 @@
 # nequip-C-fortran-interface
 Fortran - C/C++ interface for nequip.
 
-Right now this code is following step-by-step the tutorial for the [PYTORCH C++ FRONTEND](https://pytorch.org/tutorials/advanced/cpp_frontend.html)
+Right now this code is following step-by-step the tutorial for the [PYTORCH C++ FRONTEND](https://pytorch.org/tutorials/advanced/cpp_frontend.html).
+The interfaces between FORTRAN and nequip are not there, yet.
 ### Installation
 This interface currently requires:
 * Python >= 3.7
