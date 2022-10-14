@@ -30,3 +30,12 @@
 *.exe
 *.out
 *.app
+
+# Build directory
+build/
+
+# Libtorch directory
+libtorch/
+
+# zip files
+*.zip
