@@ -9,8 +9,7 @@ This interface currently requires:
 * Python >= 3.7
 * pip3
 
-The following installation script will run `pip3 install requirements.txt` and run `cmake`. 
-Run:
+The following installation script will run `pip3 install requirements.txt` and run `cmake`:
 ```
 ./install_interface.sh
 ```
