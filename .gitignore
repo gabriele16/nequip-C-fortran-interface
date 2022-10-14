@@ -39,3 +39,5 @@ libtorch/
 
 # zip files
 *.zip
+
+.vscode
