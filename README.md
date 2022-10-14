@@ -7,7 +7,9 @@ The interfaces between FORTRAN and nequip are not there, yet.
 ### Installation
 This interface currently requires:
 * Python >= 3.7
+* pip3
 
+The following installation script will run `pip3 install requirements.txt` and run `cmake`. 
 Run:
 ```
 ./install_interface.sh
