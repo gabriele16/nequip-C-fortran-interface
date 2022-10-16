@@ -47,7 +47,7 @@ int main(int argc, const char *argv[])
   try
   {
     // Deserialize the ScriptModule from a file using torch::jit::load().
-    model = torch::jit::load(argv[1]);
+    model = torch::jit::load(argv[1], device, metadata);
   }
   catch (const c10::Error &e)
   {
@@ -55,7 +55,6 @@ int main(int argc, const char *argv[])
     return -1;
   }
 
-  std::cout << "ok\n";
   // Create a vector of inputs.
   // std::vector<torch::jit::IValue> inputs;
   // inputs.push_back(torch::ones({1, 3, 224, 224}));
@@ -64,6 +63,18 @@ int main(int argc, const char *argv[])
   // at::Tensor output = module.forward(inputs).toTensor();
   // std::cout << output.slice(/*dim=*/1, /*start=*/0, /*end=*/5) << '\n';
   std::cout << "Loading model from " << argv[1] << "\n";
+
+  // Check if model is a NequIP model
+  if (metadata["nequip_version"].empty())
+  {
+    std::cout << "The indicated TorchScript file does not appear to be a deployed NequIP model; did you forget to run `nequip-deploy`?\n";
+  }
+
+  if (model.hasattr("training"))
+  {
+    std::cout << "Freezing TorchScript model...\n";
+    model = torch::jit::freeze(model);
+  }
 
   // std::shared_ptr<torch::jit::script::Module> model = torch::jit::load(argv[1]);
 
