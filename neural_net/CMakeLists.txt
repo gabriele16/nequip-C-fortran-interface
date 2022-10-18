@@ -8,13 +8,18 @@ add_executable(neural_net neural_net.cpp)
 add_executable(neural_net_submod neural_net_submod.cpp)
 add_executable(neural_net_load neural_net_load.cpp)
 add_executable(load_nequip load_nequip.cpp)
+add_executable(call_nequip call_nequip.c nequip_wrapper.cpp)
 
 target_link_libraries(neural_net "${TORCH_LIBRARIES}")
 target_link_libraries(neural_net_submod "${TORCH_LIBRARIES}")
 target_link_libraries(neural_net_load "${TORCH_LIBRARIES}")
 target_link_libraries(load_nequip "${TORCH_LIBRARIES}")
+target_link_libraries(call_nequip "${TORCH_LIBRARIES}")
 
 set_property(TARGET neural_net PROPERTY CXX_STANDARD 14)
 set_property(TARGET neural_net_submod PROPERTY CXX_STANDARD 14)
 set_property(TARGET neural_net_load PROPERTY CXX_STANDARD 14)
 set_property(TARGET load_nequip PROPERTY CXX_STANDARD 14)
+set_property(TARGET call_nequip PROPERTY CXX_STANDARD 14)
+
+#add_definitions(-DNEQUIP)
