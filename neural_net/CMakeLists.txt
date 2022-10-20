@@ -2,6 +2,19 @@ cmake_minimum_required(VERSION 3.0 FATAL_ERROR)
 project(example-app)
 
 find_package(Torch REQUIRED)
+
+set(CMAKE_CXX_STANDARD 14)
+SET (CMAKE_Fortran_COMPILER  gfortran)
+ENABLE_LANGUAGE(Fortran)
+
+# set(SOURCE_FILES
+#         main.cpp
+#         f_add.f
+#         )
+
+# add_executable(test_cpp ${SOURCE_FILES})
+
+
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${TORCH_CXX_FLAGS}")
 
 add_executable(neural_net neural_net.cpp)
@@ -9,17 +22,23 @@ add_executable(neural_net_submod neural_net_submod.cpp)
 add_executable(neural_net_load neural_net_load.cpp)
 add_executable(load_nequip load_nequip.cpp)
 add_executable(call_nequip call_nequip.c nequip_wrapper.cpp)
+add_executable(call_nequip_fort fortran_call.f90 nequip_wrapper.f90)
 
 target_link_libraries(neural_net "${TORCH_LIBRARIES}")
 target_link_libraries(neural_net_submod "${TORCH_LIBRARIES}")
 target_link_libraries(neural_net_load "${TORCH_LIBRARIES}")
 target_link_libraries(load_nequip "${TORCH_LIBRARIES}")
 target_link_libraries(call_nequip "${TORCH_LIBRARIES}")
+target_link_libraries(call_nequip_fort "${TORCH_LIBRARIES}")
+
 
 set_property(TARGET neural_net PROPERTY CXX_STANDARD 14)
 set_property(TARGET neural_net_submod PROPERTY CXX_STANDARD 14)
 set_property(TARGET neural_net_load PROPERTY CXX_STANDARD 14)
 set_property(TARGET load_nequip PROPERTY CXX_STANDARD 14)
 set_property(TARGET call_nequip PROPERTY CXX_STANDARD 14)
+set_property(TARGET call_nequip_fort PROPERTY LINKER_LANGUAGE Fortran)
+set_property(TARGET call_nequip_fort PROPERTY CXX_STANDARD 14)
+
 
 #add_definitions(-DNEQUIP)
