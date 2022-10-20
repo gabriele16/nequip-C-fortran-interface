@@ -23,8 +23,8 @@ extern "C"
 
     void delete_nequip(nequip *neq);
 
-    // void compute_nequip(nequip *neq, int *vecsize, double *dener, double *dforce,
-    //                     double *datom_ener, double *dcoord_, int *datype_, double *dbox);
+    void compute_nequip(nequip *neq, int *vecsize, double *dener, double *dforce,
+                        double *datom_ener, double *dcoord_, int *datype_, double *dbox);
 
 #ifdef __cplusplus
 }

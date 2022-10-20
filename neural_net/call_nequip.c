@@ -108,12 +108,12 @@ int main(){
     1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
     2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2};
    double box[]={9.85, 0.0, 0.0, 0.0, 9.85, 0.0, 0.0, 0.0, 9.85};
-   int vecsize = 190;
+   int vecsize = 96;
    double ener=0.0;
    double *force = (double*)malloc(sizeof(double) * vecsize * 3);
    double *atom_ener = (double*)malloc(sizeof(double) * vecsize);
 
-//   compute_nequip(neq, &vecsize, &ener,force, atom_ener, &coord[0], &atype[0], &box[0]);
+   compute_nequip(neq, &vecsize, &ener,force, atom_ener, &coord[0], &atype[0], &box[0]);
 //   printf("the energy is %.7f\n", ener);
 //   for (int i=0; i<vecsize*3; i++){
 // 	  printf("force[%d]:%f\n",i,force[i]);
