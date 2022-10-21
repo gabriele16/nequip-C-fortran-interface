@@ -12,43 +12,11 @@ ENABLE_LANGUAGE(Fortran)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${TORCH_CXX_FLAGS}")
 set(CMAKE_Fortran_FLAGS "-lstdc++")
 
+add_executable(call_nequip_fort fortran_call.f90 wrap_nequip.f90 nequip_wrapper.cpp )
 
+target_link_libraries(call_nequip_fort "${TORCH_LIBRARIES}")
 
-
-#add_executable(neural_net neural_net.cpp)
-#add_executable(neural_net_submod neural_net_submod.cpp)
-#add_executable(neural_net_load neural_net_load.cpp)
-#add_executable(load_nequip load_nequip.cpp)
-
-add_executable(call_nequip fortran_call.f90 wrap_nequip.f90 nequip_wrapper.cpp )
-
-#add_executable(call_nequip_fort fortran_call.f90)
-#SET_TARGET_PROPERTIES(call_nequip_fort PROPERTIES LINKER_LANGUAGE Fortran)
-#target_link_libraries(call_nequip_fort name)
-
-#target_link_libraries(neural_net "${TORCH_LIBRARIES}")
-#target_link_libraries(neural_net_submod "${TORCH_LIBRARIES}")
-#target_link_libraries(neural_net_load "${TORCH_LIBRARIES}")
-#target_link_libraries(load_nequip "${TORCH_LIBRARIES}")
-
-
-target_link_libraries(call_nequip "${TORCH_LIBRARIES}")
-
-#target_link_libraries(call_nequip_fort "${TORCH_LIBRARIES}")
-
-#set_property(TARGET neural_net PROPERTY CXX_STANDARD 14)
-#set_property(TARGET neural_net_submod PROPERTY CXX_STANDARD 14)
-#set_property(TARGET neural_net_load PROPERTY CXX_STANDARD 14)
-#set_property(TARGET load_nequip PROPERTY CXX_STANDARD 14)
-
-set_property(TARGET call_nequip PROPERTY CXX_STANDARD 14)
-set_property(TARGET call_nequip PROPERTY LINKER_LANGUAGE Fortran)
-
-#set_property(TARGET call_nequip_fort PROPERTY LINKER_LANGUAGE Fortran)
-#set_property(TARGET call_nequip_fort PROPERTY CXX_STANDARD 14)
-#string(APPEND CMAKE_SHARED_LINKER_FLAGS "-static-libgcc -static-libstdc++")
-#set_property(TARGET call_nequip_fort PROPERTY LINKER_LANGUAGE Fortran)
-#set_property(TARGET call_nequip_fort PROPERTY CXX_STANDARD 14)
-
+set_property(TARGET call_nequip_fort PROPERTY CXX_STANDARD 14)
+set_property(TARGET call_nequip_fort PROPERTY LINKER_LANGUAGE Fortran)
 
 #add_definitions(-DNEQUIP)

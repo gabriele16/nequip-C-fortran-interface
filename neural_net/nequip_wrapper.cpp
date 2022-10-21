@@ -121,6 +121,7 @@ void compute_nequip(nequip *neq,
     }
 
     // Get cell
+    std::cout<<"Get cell"<<std::endl;
     int i = 0;
     for (int ii = 0; ii < 3; ii++)
     {
@@ -128,6 +129,7 @@ void compute_nequip(nequip *neq,
         {
             cell[ii][jj] = box[i];
             i++;
+	    std::cout<<cell[ii][jj]<<std::endl;
         }
     }
     auto cell_inv = cell_tensor.inverse().transpose(0, 1);

@@ -130,8 +130,8 @@ program fortran_call
       datype => atype
       dbox => box
       pot=create_nequip('water-deploy.pth')
-      print *, "mortacci tua"
-!       call compute_nequip(pot%ptr, vecsize, dener, dforce, datom_ener, dcoord, datype, dbox)
+       call compute_nequip(pot%ptr, vecsize, dener, dforce, datom_ener, dcoord, datype, dbox)
+      print*, "compute_nequip terminated successfully"
 !       print*, dener
 !       print*, dforce
 !       print*, datom_ener
