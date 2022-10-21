@@ -22,4 +22,4 @@ cd neural_net
 ./build/neural_net
 ```
 ### TODO:
-* write minimal neighbor lists subroutine in Fortran and then pass it to the C/C++ code to be finally able to perform inference using the `compute_nequip` function inside nequip_wrapper.cpp
+* write minimal neighbor lists subroutine in Fortran and then pass this list to the C/C++ code to be finally able to perform inference using the `compute_nequip` function inside nequip_wrapper.cpp. This is how it would be done once Nequip is implemented in CP2K.
