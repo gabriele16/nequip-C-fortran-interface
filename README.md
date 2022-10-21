@@ -25,7 +25,7 @@ cd neural_net
 ### Brief description:
 * `fortran_call.90` is the main program, where coordinates and species information are defined, and where the `water-deploy.pth` model is declared and passed to the C/C++ code
 * wrap_nequip.f90 is the Fortran module that is interfaced to C via `ISO_C_BINDING`
-* `nequip_wrapper.cpp` and `nequip_wrapper.h` are the C/C++ code and header file, respectively, where the Pytorch model is loaded and where inference will eventually be made. The header file contains the `__cplusplus` preprocessor macro and the `extern "C"` function such that a C++ function has C linkage and the C++ code can be called from C.
+* `nequip_wrapper.cpp` and `nequip_wrapper.h` are the C/C++ code and header file, respectively, where the Pytorch model is loaded and where inference will eventually be made. The header file contains the `__cplusplus` preprocessor macro and the `extern "C"` function such that the C++ code has C linkage, i.e. the C++ code can be called from C.
 
 ### TODO:
 * write minimal neighbor lists subroutine in Fortran and then pass this list to the C/C++ code to be finally able to perform inference using the `compute_nequip` function inside nequip_wrapper.cpp. This is how it would be done once Nequip is implemented in CP2K.
