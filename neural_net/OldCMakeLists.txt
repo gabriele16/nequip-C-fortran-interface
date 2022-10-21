@@ -5,13 +5,17 @@ find_package(Torch REQUIRED)
 
 set(CMAKE_CXX_STANDARD 14)
 
-SET(CMAKE_Fortran_COMPILER  gfortran)
+#SET (CMAKE_Fortran_COMPILER  gfortran)
 
-ENABLE_LANGUAGE(Fortran)
+#ENABLE_LANGUAGE(Fortran)
+
+#SET(F_OBJ wrap_nequip.f90)
+#SET(C_OBJ nequip_wrapper.cpp)
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${TORCH_CXX_FLAGS}")
-set(CMAKE_Fortran_FLAGS "-lstdc++")
 
+#ADD_LIBRARY(name STATIC ${F_OBJ} ${C_OBJ} ${CMAKE_CXX_FLAGS} ${TORCH_CXX_FLAGS})
+#SET_TARGET_PROPERTIES(name PROPERTIES LINKER_LANGUAGE Fortran)
 
 
 
@@ -20,7 +24,7 @@ set(CMAKE_Fortran_FLAGS "-lstdc++")
 #add_executable(neural_net_load neural_net_load.cpp)
 #add_executable(load_nequip load_nequip.cpp)
 
-add_executable(call_nequip fortran_call.f90 wrap_nequip.f90 nequip_wrapper.cpp )
+add_executable(call_nequip call_nequip.c nequip_wrapper.cpp)
 
 #add_executable(call_nequip_fort fortran_call.f90)
 #SET_TARGET_PROPERTIES(call_nequip_fort PROPERTIES LINKER_LANGUAGE Fortran)
@@ -42,7 +46,6 @@ target_link_libraries(call_nequip "${TORCH_LIBRARIES}")
 #set_property(TARGET load_nequip PROPERTY CXX_STANDARD 14)
 
 set_property(TARGET call_nequip PROPERTY CXX_STANDARD 14)
-set_property(TARGET call_nequip PROPERTY LINKER_LANGUAGE Fortran)
 
 #set_property(TARGET call_nequip_fort PROPERTY LINKER_LANGUAGE Fortran)
 #set_property(TARGET call_nequip_fort PROPERTY CXX_STANDARD 14)

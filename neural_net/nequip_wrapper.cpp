@@ -18,7 +18,7 @@ struct NEQUIP
     void *obj;
 };
 
-// create wrapper function for constructor in NNPInter
+// create wrapper function for constructor in NEQUIP
 nequip *create_nequip(char *model)
 {
     nequip *neq;

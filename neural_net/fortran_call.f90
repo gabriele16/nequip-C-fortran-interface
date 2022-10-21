@@ -1,12 +1,12 @@
 program fortran_call
-    use nequip_wrapper
+    use wrap_nequip
     implicit none
     type(nequip) :: pot
     integer :: vecsize
     integer,target,allocatable :: atype(:)
     real(8), target,allocatable :: coord(:)
     real(8), target, allocatable  :: box(:)
-    real(8), target :: force(96*3),  atom_ener(96), 
+    real(8), target :: force(96*3),  atom_ener(96)
     real(8), target :: ener
     real(8), dimension(:), pointer :: dforce, datom_ener,  dcoord, dbox
     real(8), pointer :: dener
@@ -123,15 +123,16 @@ program fortran_call
       33.116888420000002 ,      1.2338084899999999 ,      43.112771199999997 ,&
       37.199699350000003 ,      2.5049007099999998 ,      39.791712660000002  /)
 
-      dener => ener&
-      dforce => force&
-      datom_ener => atom_ener&
-      dcoord => coord&
-      datype => atype&
-      dbox => box&
+      dener => ener
+      dforce => force
+      datom_ener => atom_ener
+      dcoord => coord
+      datype => atype
+      dbox => box
       pot=create_nequip('water-deploy.pth')
-      call compute_nequip(pot%ptr, vecsize, dener, dforce, datom_ener, dcoord, datype, dbox)
-      print*, dener
-      print*, dforce
-      print*, datom_ener
+      print *, "mortacci tua"
+!       call compute_nequip(pot%ptr, vecsize, dener, dforce, datom_ener, dcoord, datype, dbox)
+!       print*, dener
+!       print*, dforce
+!       print*, datom_ener
 end program fortran_call

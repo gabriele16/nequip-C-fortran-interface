@@ -13,7 +13,7 @@
 ! **************************************************************************************************
 
 
-MODULE nequip_wrapper
+MODULE wrap_nequip
 
    USE ISO_C_BINDING,                   ONLY: C_PTR,&
                                               C_CHAR,&
@@ -24,7 +24,7 @@ MODULE nequip_wrapper
 
    IMPLICIT NONE   
    PRIVATE
-   PUBLIC :: nequip, create_nequip, delete_nequip_c, compute_nequip
+   PUBLIC :: nequip, create_nequip, delete_nequip_c !, compute_nequip
 
    INTERFACE
       FUNCTION create_nequip_c(model) BIND(C, name="create_nequip")
@@ -38,20 +38,20 @@ MODULE nequip_wrapper
          IMPLICIT NONE
          TYPE(C_PTR), INTENT(IN), VALUE   :: nequip 
       END SUBROUTINE
-      SUBROUTINE compute_nequip_c(nequip, vecsize, &
-                   dener, dforce,  datom_ener, &
-                    dcoord, datype, dbox) BIND(C, name="compute_nequip")
-         USE ISO_C_BINDING
-         IMPLICIT NONE
-         TYPE(C_PTR), INTENT(IN), VALUE :: nequip
-         TYPE(C_PTR), INTENT(IN), VALUE :: vecsize
-         TYPE(C_PTR), INTENT(IN), VALUE :: dener
-         TYPE(C_PTR), INTENT(IN), VALUE :: dforce
-         TYPE(C_PTR), INTENT(IN), VALUE :: datom_ener
-         TYPE(C_PTR), INTENT(IN), VALUE :: dcoord
-         TYPE(C_PTR), INTENT(IN), VALUE :: datype
-         TYPE(C_PTR), INTENT(IN), VALUE :: dbox
-      END SUBROUTINE
+      ! SUBROUTINE compute_nequip_c(nequip, vecsize, &
+      !              dener, dforce,  datom_ener, &
+      !               dcoord, datype, dbox) BIND(C, name="compute_nequip")
+      !    USE ISO_C_BINDING
+      !    IMPLICIT NONE
+      !    TYPE(C_PTR), INTENT(IN), VALUE :: nequip
+      !    TYPE(C_PTR), INTENT(IN), VALUE :: vecsize
+      !    TYPE(C_PTR), INTENT(IN), VALUE :: dener
+      !    TYPE(C_PTR), INTENT(IN), VALUE :: dforce
+      !    TYPE(C_PTR), INTENT(IN), VALUE :: datom_ener
+      !    TYPE(C_PTR), INTENT(IN), VALUE :: dcoord
+      !    TYPE(C_PTR), INTENT(IN), VALUE :: datype
+      !    TYPE(C_PTR), INTENT(IN), VALUE :: dbox
+      ! END SUBROUTINE
    END INTERFACE
      TYPE nequip
              TYPE(C_PTR) :: ptr
@@ -73,18 +73,18 @@ CONTAINS
              create_nequip%ptr = create_nequip_c(c_model)
    END FUNCTION
 
-   SUBROUTINE compute_nequip(pot, vecsize, dener, dforce,  datom_ener,  dcoord, datype, dbox)
-      IMPLICIT NONE
-      TYPE(C_PTR) :: pot
-      INTEGER(C_INT), TARGET  :: vecsize
-      REAL(C_DOUBLE), POINTER :: dener
-      REAL(C_DOUBLE), POINTER :: dforce(:)
-      REAL(C_DOUBLE), POINTER :: datom_ener(:)
-      REAL(C_DOUBLE), POINTER :: dcoord(:)
-      INTEGER(C_INT), POINTER :: datype(:)
-      REAL(C_DOUBLE), POINTER :: dbox(:)
-      CALL compute_nequip_c(pot, C_LOC(vecsize), C_LOC(dener), C_LOC(dforce(1)), &
-                                C_LOC(datom_ener(1)),C_LOC(dcoord(1)), C_LOC(datype(1)), C_LOC(dbox(1)))
+   ! SUBROUTINE compute_nequip(pot, vecsize, dener, dforce,  datom_ener,  dcoord, datype, dbox)
+   !    IMPLICIT NONE
+   !    TYPE(C_PTR) :: pot
+   !    INTEGER(C_INT), TARGET  :: vecsize
+   !    REAL(C_DOUBLE), POINTER :: dener
+   !    REAL(C_DOUBLE), POINTER :: dforce(:)
+   !    REAL(C_DOUBLE), POINTER :: datom_ener(:)
+   !    REAL(C_DOUBLE), POINTER :: dcoord(:)
+   !    INTEGER(C_INT), POINTER :: datype(:)
+   !    REAL(C_DOUBLE), POINTER :: dbox(:)
+   !    CALL compute_nequip_c(pot, C_LOC(vecsize), C_LOC(dener), C_LOC(dforce(1)), &
+   !                              C_LOC(datom_ener(1)),C_LOC(dcoord(1)), C_LOC(datype(1)), C_LOC(dbox(1)))
                                
-   END SUBROUTINE
-END MODULE nequip_wrapper
+   ! END SUBROUTINE
+END MODULE wrap_nequip
