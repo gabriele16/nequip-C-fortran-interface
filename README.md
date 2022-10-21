@@ -24,7 +24,7 @@ cd neural_net
 
 ### Brief description:
 * `fortran_call.90` is the main program, where coordinates and species information are defined, and where the `water-deploy.pth` model is declared and passed to the C/C++ code
-* wrap_nequip.f90 is the Fortran module that is interfaced to C via `ISO_C_BINDING`
+* `wrap_nequip.f90` contains the Fortran module that is interfaced to C via `ISO_C_BINDING`
 * `nequip_wrapper.cpp` and `nequip_wrapper.h` are the C/C++ code and header file, respectively, where the Pytorch model is loaded and where inference will eventually be made. The header file contains the `__cplusplus` preprocessor macro and the `extern "C"` function such that the C++ code has C linkage.
 
 ### TODO:
