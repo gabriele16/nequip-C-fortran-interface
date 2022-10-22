@@ -63,6 +63,11 @@ nequip *create_nequip(char *model)
 
     cutoff = std::stod(metadata["r_max"]);
 
+    if (obj.hasattr("training"))
+    {
+        std::cout << "Freezing TorchScript model...\n";
+    }
+
     return neq;
 }
 void delete_nequip(nequip *neq)
