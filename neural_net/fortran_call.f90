@@ -1,19 +1,21 @@
-program fortran_call
-    use wrap_nequip
-    implicit none
-    type(nequip) :: pot
-    integer :: vecsize
-    integer,target,allocatable :: atype(:)
-    real(8), target,allocatable :: coord(:)
-    real(8), target, allocatable  :: box(:)
-    real(8), target :: force(96*3),  atom_ener(96)
-    real(8), target :: ener
-    real(8), dimension(:), pointer :: dforce, datom_ener,  dcoord, dbox
-    real(8), pointer :: dener
-    integer, dimension(:), pointer :: datype
-    allocate(box(9))
-    allocate(atype(96))
-    allocate(coord(96*3))
+PROGRAM fortran_call
+    USE wrap_nequip
+    USE neighborslist
+    IMPLICIT NONE
+    TYPE(nequip) :: pot
+    INTEGER :: vecsize
+    INTEGER,TARGET,ALLOCATABLE :: atype(:)
+    REAL(8), TARGET,ALLOCATABLE :: coord(:)
+    REAL(8), TARGET, ALLOCATABLE  :: box(:)
+    REAL(8), TARGET :: force(96*3),  atom_ener(96)
+    REAL(8), TARGET :: ener
+    REAL(8), DIMENSION(:), POINTER :: dforce, datom_ener,  dcoord, dbox
+    REAL(8), POINTER :: dener
+    REAL(8) :: cutoff
+    INTEGER, DIMENSION(:), POINTER :: datype
+    ALLOCATE(box(9))
+    ALLOCATE(atype(96))
+    ALLOCATE(coord(96*3))
 ! input the test data
      vecsize=96
      ener=0.0
@@ -129,10 +131,12 @@ program fortran_call
       dcoord => coord
       datype => atype
       dbox => box
+      cutoff = 4.0
+      CALL compute_neighborslist( dcoord,  dbox, vecsize, cutoff)
       pot=create_nequip('water-deploy.pth')
-       call compute_nequip(pot%ptr, vecsize, dener, dforce, datom_ener, dcoord, datype, dbox)
+      CALL compute_nequip(pot%ptr, vecsize, dener, dforce, datom_ener, dcoord, datype, dbox)
       print*, "compute_nequip terminated successfully"
 !       print*, dener
 !       print*, dforce
 !       print*, datom_ener
-end program fortran_call
+END PROGRAM fortran_call

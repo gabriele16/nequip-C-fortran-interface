@@ -12,7 +12,7 @@ ENABLE_LANGUAGE(Fortran)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${TORCH_CXX_FLAGS}")
 set(CMAKE_Fortran_FLAGS "-lstdc++")
 
-add_executable(call_nequip_fort fortran_call.f90 wrap_nequip.f90 nequip_wrapper.cpp )
+add_executable(call_nequip_fort fortran_call.f90 wrap_nequip.f90 neighborlists.f90 nequip_wrapper.cpp )
 
 target_link_libraries(call_nequip_fort "${TORCH_LIBRARIES}")
 

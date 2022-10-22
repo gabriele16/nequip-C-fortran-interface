@@ -25,6 +25,7 @@ nequip *create_nequip(char *model)
     torch::jit::script::Module obj;
     neq = (typeof(neq))malloc(sizeof(*neq));
     torch::Device device = torch::kCPU;
+    double cutoff;
 
     if (torch::cuda::is_available())
     {
@@ -60,6 +61,8 @@ nequip *create_nequip(char *model)
         std::cout << "Key:[" << n.first << "] Value:[" << n.second << "]\n";
     }
 
+    cutoff = std::stod(metadata["r_max"]);
+
     return neq;
 }
 void delete_nequip(nequip *neq)
@@ -82,7 +85,7 @@ void compute_nequip(nequip *neq,
     if (neq == NULL)
         return;
     obj = static_cast<torch::jit::script::Module *>(neq->obj);
-    //     // covert array to vector
+    // convert array to vector
     double ener = 0.0;
     int vsize = *vecsize;
     std::vector<double> force_(vsize * 3, 0.0);
@@ -121,7 +124,7 @@ void compute_nequip(nequip *neq,
     }
 
     // Get cell
-    std::cout<<"Get cell"<<std::endl;
+    std::cout << "Get cell" << std::endl;
     int i = 0;
     for (int ii = 0; ii < 3; ii++)
     {
@@ -129,7 +132,7 @@ void compute_nequip(nequip *neq,
         {
             cell[ii][jj] = box[i];
             i++;
-	    std::cout<<cell[ii][jj]<<std::endl;
+            std::cout << cell[ii][jj] << std::endl;
         }
     }
     auto cell_inv = cell_tensor.inverse().transpose(0, 1);
