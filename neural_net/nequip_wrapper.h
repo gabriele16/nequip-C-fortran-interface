@@ -1,5 +1,3 @@
-
-
 /*----------------------------------------------------------------------------*/
 /*  CP2K: A general program to perform molecular dynamics simulations         */
 /*  Copyright 2000-2022 CP2K developers group <https://cp2k.org>              */
@@ -16,7 +14,16 @@
 extern "C"
 {
 #endif
-    struct NEQUIP;
+    // define a new data type, this struct allows us to use it a safe way in C.
+    struct NEQUIP
+    {
+        // obj is the pointer where we store the nequip object.
+        void *obj;
+        //    torch::jit::script::Module obj;
+        char *model;
+        double cutoff;
+    };
+
     typedef struct NEQUIP nequip;
 
     nequip *create_nequip(char *model);

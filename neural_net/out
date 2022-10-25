@@ -1,0 +1,15 @@
+Information from model: 8 key-value pairs
+Loading model from water-deploy.pth
+Information from model: 8 key-value pairs
+Key:[allow_tf32] 
+Key:[_jit_fusion_strategy] 
+Key:[_jit_bailout_depth] 
+Key:[type_names] 
+Key:[r_max] 
+Key:[n_species] 
+Key:[nequip_version] 
+Key:[config] 
+loaded model name: water-deploy.pth
+cutoff 4.000000
+load potential successfully
+define ok

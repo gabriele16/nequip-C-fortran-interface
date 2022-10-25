@@ -4,6 +4,8 @@
 int main(){
    char model[] = "water-deploy.pth";
    nequip *neq = create_nequip(model);
+   printf("loaded model name: %s\n", neq->model);
+   printf("cutoff %f\n",neq->cutoff);
    printf("load potential successfully\n");
    double coord[] ={
       42.886169670000001,   -0.055681660000000001,      38.329161120000002,

@@ -134,8 +134,9 @@ PROGRAM fortran_call
       cutoff = 4.0
       CALL compute_neighborslist( dcoord,  dbox, vecsize, cutoff)
       pot=create_nequip('water-deploy.pth')
-      CALL compute_nequip(pot%ptr, vecsize, dener, dforce, datom_ener, dcoord, datype, dbox)
-      print*, "compute_nequip terminated successfully"
+!      print*, pot%model
+!       CALL compute_nequip(pot%ptr, vecsize, dener, dforce, datom_ener, dcoord, datype, dbox)
+!       print*, "compute_nequip terminated successfully"
 !       print*, dener
 !       print*, dforce
 !       print*, datom_ener

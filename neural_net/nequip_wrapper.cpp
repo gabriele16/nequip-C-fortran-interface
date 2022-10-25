@@ -11,13 +11,6 @@
 #include <memory>
 #include "nequip_wrapper.h"
 
-// define a new data type, this struct allows us to use it a safe way in C.
-struct NEQUIP
-{
-    // obj is the pointer where we store the nequip object.
-    void *obj;
-};
-
 // create wrapper function for constructor in NEQUIP
 nequip *create_nequip(char *model)
 {
@@ -25,7 +18,7 @@ nequip *create_nequip(char *model)
     torch::jit::script::Module obj;
     neq = (typeof(neq))malloc(sizeof(*neq));
     torch::Device device = torch::kCPU;
-    double cutoff;
+    neq->model = model;
 
     if (torch::cuda::is_available())
     {
@@ -51,22 +44,29 @@ nequip *create_nequip(char *model)
     // Deserialize the ScriptModule from a file using torch::jit::load().
     obj = torch::jit::load(model, device, metadata);
     obj.eval();
-    neq->obj = &obj;
 
     std::cout << "Loading model from " << model << "\n";
 
     std::cout << "Information from model: " << metadata.size() << " key-value pairs\n";
     for (const auto &n : metadata)
     {
-        std::cout << "Key:[" << n.first << "] Value:[" << n.second << "]\n";
+        std::cout << "Key:[" << n.first << "] \n";
+        //        std::cout  << "Key:[" << n.first << "] Value:[" << n.second << "]\n";
     }
 
-    cutoff = std::stod(metadata["r_max"]);
+    neq->cutoff = std::stod(metadata["r_max"]);
 
-    if (obj.hasattr("training"))
-    {
-        std::cout << "Freezing TorchScript model...\n";
-    }
+    // if (obj.hasattr("training"))
+    // {
+    //     std::cout << "Freezing TorchScript model...\n";
+    //     obj = torch::jit::freeze(obj);
+    // }
+    neq->obj = &obj;
+
+    // for (const auto &p : &neq->obj.parameters())
+    // {
+    //     std::cout << p << std::endl;
+    // }
 
     return neq;
 }
@@ -89,8 +89,8 @@ void compute_nequip(nequip *neq,
 
     if (neq == NULL)
         return;
-    obj = static_cast<torch::jit::script::Module *>(neq->obj);
     // convert array to vector
+    obj = static_cast<torch::jit::script::Module *>(neq->obj);
     double ener = 0.0;
     int vsize = *vecsize;
     std::vector<double> force_(vsize * 3, 0.0);
@@ -99,6 +99,15 @@ void compute_nequip(nequip *neq,
     std::vector<double> box(dbox, dbox + 9);
     std::vector<int> atype_(datype_, datype_ + vsize);
     std::cout << "define ok" << std::endl;
+
+    printf("cutoff inside cpp %f\n", neq->cutoff);
+
+    // for (const auto &p : neq->obj.parameters())
+    // {
+    //     std::cout << p << std::endl;
+    // }
+
+    std::cout << "Freezing TorchScript model...\n";
 
     // obj->compute(ener,
     //              force_,
