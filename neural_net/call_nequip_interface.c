@@ -1,11 +1,10 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include "nequip_wrapper.h"
+#include "c_wrapper.h"
 //#include "nequip.h"
 int main(){
    char model[] = "water-deploy.pth";
-   nequip *neq = create_nequip(model);
-//   c_torch_jit_script_Module *module= c_torch_jit_load(model);
+   nequipwrap *neq = create_nequip(model);
 //    printf("loaded model name: %s\n", neq->model);
 //    printf("cutoff %f\n",neq->cutoff);
 //    printf("load potential successfully\n");
@@ -118,7 +117,7 @@ int main(){
    double *force = (double*)malloc(sizeof(double) * vecsize * 3);
    double *atom_ener = (double*)malloc(sizeof(double) * vecsize);
 
-//   compute_nequip(neq, &vecsize, &ener,force, atom_ener, &coord[0], &atype[0], &box[0]);
+   compute_nequip(neq, &vecsize, &ener,force, atom_ener, &coord[0], &atype[0], &box[0]);
 //   printf("the energy is %.7f\n", ener);
 //   for (int i=0; i<vecsize*3; i++){
 // 	  printf("force[%d]:%f\n",i,force[i]);

@@ -41,3 +41,5 @@ libtorch/
 *.zip
 
 .vscode
+
+*out*

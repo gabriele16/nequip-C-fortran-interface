@@ -107,7 +107,7 @@ void compute_nequip(nequip *neq,
     //     std::cout << p << std::endl;
     // }
 
-    std::cout << "Freezing TorchScript model...\n";
+    // std::cout << "Freezing TorchScript model...\n";
 
     // obj->compute(ener,
     //              force_,
