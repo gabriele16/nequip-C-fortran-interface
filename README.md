@@ -37,8 +37,4 @@ cd neural_net
 * `nequip.h` and `nequip.cpp` are the C++ code and header containing the `NequipPot` class that takes care of loading the model and of inference.
 
 ### TODO:
-<<<<<<< HEAD
 * write minimal neighbor lists subroutine in Fortran and then pass this list to the C/C++ code to be finally able to perform inference using the `compute_nequip` function inside nequip_wrapper.cpp. For now the module `neighnborlists.f90` only computes distances. This is how it would be done once Nequip is implemented in CP2K.
-=======
-* write minimal neighbor lists subroutine in Fortran and then pass this list to the C/C++ code to be finally able to perform inference using the `compute_nequip` function inside nequip.cpp. This is how it would be done once Nequip is implemented in CP2K.
->>>>>>> refs/remotes/origin/main
