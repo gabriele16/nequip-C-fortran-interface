@@ -19,13 +19,14 @@ The following installation script will run `pip3 install requirements.txt` and r
 To load the nequip model `water-deploy.pth` using Fortran-C interface with the PyTorch C++ Frontend simply do: 
 ```
 cd neural_net
-./build/call_nequip_fort
+./build/call_nequip_interface
 ```
 
 ### Brief description:
-* `fortran_call.90` is the main program, where coordinates and species information are defined, and where the `water-deploy.pth` model is declared and passed to the C/C++ code
+* `fortran_call.90` is the main program, where coordinates and species information are defined, and where the `water-deploy.pth` model is declared and passed to C/C++
 * `wrap_nequip.f90` contains the Fortran module that is interfaced to C via `ISO_C_BINDING`
-* `nequip_wrapper.cpp` and `nequip_wrapper.h` are the C/C++ code and header file, respectively, where the Pytorch model is loaded and where inference will eventually be made. The header file contains the `__cplusplus` preprocessor macro and the `extern "C"` function such that the C++ code has C linkage.
+* `c_wrapper.cpp` and `c_wrapper.h` are the C/C++ code and header, respectively, for interoperability between C and C++. The header file contains the `__cplusplus` preprocessor macro and the `extern "C"` function such that the C++ code has C linkage. `c_wrapper.cpp` calls `nequip.cpp`
+* `nequip.h` and `nequip.cpp` are the C++ code and header containing the `NequipPot` class that takes care of loading the model and of inference.
 
 ### TODO:
-* write minimal neighbor lists subroutine in Fortran and then pass this list to the C/C++ code to be finally able to perform inference using the `compute_nequip` function inside nequip_wrapper.cpp. This is how it would be done once Nequip is implemented in CP2K.
+* write minimal neighbor lists subroutine in Fortran and then pass this list to the C/C++ code to be finally able to perform inference using the `compute_nequip` function inside nequip.cpp. This is how it would be done once Nequip is implemented in CP2K.
