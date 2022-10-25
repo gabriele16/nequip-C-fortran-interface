@@ -16,10 +16,15 @@ The following installation script will run `pip3 install requirements.txt` and r
 ./install_interface.sh
 ```
 ### Basic Neural Network Calculation
-To load the nequip model `water-deploy.pth` using Fortran-C interface with the PyTorch C++ Frontend simply do: 
+To load the nequip model `water-deploy.pth` using Fortran-C/C++ interface with the PyTorch C++ Frontend simply do: 
 ```
 cd neural_net
-./build/call_nequip_fort
+./build/call_nequip_interface_fort
+```
+Instead, to load the nequip model `water-deploy.pth` using just the C/C++ interface with the PyTorch C++ Frontend simply do: 
+```
+cd neural_net
+./build/call_nequip_interface
 ```
 
 ### Brief description:
@@ -28,4 +33,4 @@ cd neural_net
 * `nequip_wrapper.cpp` and `nequip_wrapper.h` are the C/C++ code and header file, respectively, where the Pytorch model is loaded and where inference will eventually be made. The header file contains the `__cplusplus` preprocessor macro and the `extern "C"` function such that the C++ code has C linkage.
 
 ### TODO:
-* write minimal neighbor lists subroutine in Fortran and then pass this list to the C/C++ code to be finally able to perform inference using the `compute_nequip` function inside nequip_wrapper.cpp. This is how it would be done once Nequip is implemented in CP2K.
+* write minimal neighbor lists subroutine in Fortran and then pass this list to the C/C++ code to be finally able to perform inference using the `compute_nequip` function inside nequip_wrapper.cpp. For now the module `neighnborlists.f90` only computes distances. This is how it would be done once Nequip is implemented in CP2K.

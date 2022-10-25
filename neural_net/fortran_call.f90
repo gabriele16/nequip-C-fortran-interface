@@ -2,7 +2,7 @@ PROGRAM fortran_call
     USE wrap_nequip
     USE neighborslist
     IMPLICIT NONE
-    TYPE(nequip) :: pot
+    TYPE(nequipwrap) :: pot
     INTEGER :: vecsize
     INTEGER,TARGET,ALLOCATABLE :: atype(:)
     REAL(8), TARGET,ALLOCATABLE :: coord(:)
@@ -135,7 +135,7 @@ PROGRAM fortran_call
       CALL compute_neighborslist( dcoord,  dbox, vecsize, cutoff)
       pot=create_nequip('water-deploy.pth')
 !      print*, pot%model
-!       CALL compute_nequip(pot%ptr, vecsize, dener, dforce, datom_ener, dcoord, datype, dbox)
+       CALL compute_nequip(pot%ptr, vecsize, dener, dforce, datom_ener, dcoord, datype, dbox)
 !       print*, "compute_nequip terminated successfully"
 !       print*, dener
 !       print*, dforce
