@@ -19,14 +19,11 @@ The following installation script will run `pip3 install requirements.txt` and r
 To load the nequip model `water-deploy.pth` using Fortran-C/C++ interface with the PyTorch C++ Frontend simply do: 
 ```
 cd neural_net
-<<<<<<< HEAD
 ./build/call_nequip_interface_fort
 ```
 Instead, to load the nequip model `water-deploy.pth` using just the C/C++ interface with the PyTorch C++ Frontend simply do: 
 ```
 cd neural_net
-=======
->>>>>>> refs/remotes/origin/main
 ./build/call_nequip_interface
 ```
 
