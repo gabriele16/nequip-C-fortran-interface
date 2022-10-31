@@ -12,6 +12,7 @@
 #include "nequip.h"
 
 using namespace nequip;
+using namespace torch::indexing;
 
 NequipPot::
     NequipPot(const std::string &model)
@@ -56,11 +57,14 @@ void NequipPot::
 
   std::cout << "Loading model from " << model << "\n";
 
-  std::cout << "Information from model: " << metadata.size() << " key-value pairs\n";
-  for (const auto &n : metadata)
+  if (debug_mode)
   {
-    std::cout << "Key:[" << n.first << "] \n";
-    //        std::cout  << "Key:[" << n.first << "] Value:[" << n.second << "]\n";
+    std::cout << "Information from model: " << metadata.size() << " key-value pairs\n";
+    for (const auto &n : metadata)
+    {
+      std::cout << "Key:[" << n.first << "] \n";
+      //      std::cout << "Key:[" << n.first << "] Value:[" << n.second << "]\n";
+    }
   }
 
   cutoff = std::stod(metadata["r_max"]);
@@ -74,29 +78,87 @@ void NequipPot::
 }
 
 void NequipPot::
-    compute(double &ener,
-            std::vector<double> &force,
-            std::vector<double> &atom_energy,
-            const std::vector<double> &coord,
-            const std::vector<int> &atype,
-            const std::vector<double> &box)
+    distance(auto x1, auto x2,
+             auto h, auto hinv, double &rsq)
 {
 
-  if (debug_mode)
+  torch::Tensor s1 = torch::dot(hinv, x1);
+  torch::Tensor s2 = torch::dot(hinv, x2);
+  torch::Tensor s21 = s2 - s1;
+  s21 = s21 - torch::round(s21);
+  torch::Tensor r21 = torch::dot(h, s21);
+  rsq = torch::dot(r21, r21).item<double>();
+}
+
+void NequipPot::
+    compute(const int natoms,
+            const std::vector<double> &box,
+            double &ener,
+            std::vector<double> &f,
+            std::vector<double> &atom_energy,
+            const std::vector<double> &x,
+            const std::vector<int> &atype)
+{
+
+  torch::Tensor pos_tensor = torch::zeros({natoms, 3});
+  torch::Tensor tag2type_tensor = torch::zeros({natoms}, torch::TensorOptions().dtype(torch::kInt64));
+  torch::Tensor periodic_shift_tensor = torch::zeros({3});
+  torch::Tensor cell_tensor = torch::zeros({3, 3});
+  torch::Tensor x1_tensor = torch::zeros({3});
+  torch::Tensor x2_tensor = torch::zeros({3});
+  double rsq = 0.0;
+
+  auto pos = pos_tensor.accessor<float, 2>();
+  //  long edges[2 * nedges];
+  //  float edge_cell_shifts[3 * nedges];
+  //  auto tag2type = tag2type_tensor.accessor<long, 1>();
+  auto periodic_shift = periodic_shift_tensor.accessor<float, 1>();
+  auto cell = cell_tensor.accessor<float, 2>();
+
+  // Get cell
+  int ii = 0;
+  for (int i = 0; i < 3; i++)
   {
-    for (const auto &p : nequipmodel.parameters())
+    for (int j = 0; j < 3; j++)
     {
-      std::cout << p << std::endl;
+      cell[i][j] = box[ii];
+      ii++;
     }
   }
 
-  if (nequipmodel.hasattr("training"))
+  std::cout << "cell: " << cell_tensor << std::endl;
+
+  for (int i = 0; i < natoms; i++)
   {
-    std::cout << "Connection made!\n";
+    std::cout << "atom type " << atype[i] << std::endl;
   }
-  else
+
+  auto cell_inv = cell_tensor.inverse().transpose(0, 1);
+
+  for (int i = 0; i < 3 * natoms; i++)
   {
-    std::cout << "Connection made but has no training!\n";
+    pos[i][0] = x[i * 3];
+    pos[i][1] = x[i * 3 + 1];
+    pos[i][2] = x[i * 3 + 2];
   }
-  std::cout << "cutoff: " << cutoff << std::endl;
+
+  for (int ii = 0; ii < natoms; ii++)
+  {
+    auto x1 = pos.slice(ii).accessor<float, 3>();
+    for (int jj = 0; jj < natoms; jj++)
+    {
+      auto x2 = pos.slice(jj).accessor<float, 3>();
+      // distance(x1, x2, cell, cell_inv, rsq);
+      // std::cout << rsq << std::endl;
+    }
+  }
+
+  // if (debug_mode)
+  // {
+  //   for (const auto &p : nequipmodel.parameters())
+  //   {
+  //     std::cout << p << std::endl;
+  //   }
+  //   std::cout << "cutoff: " << cutoff << std::endl;
+  // }
 }

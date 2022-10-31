@@ -15,12 +15,16 @@ namespace nequip
         void init(const std::string &model);
         void print_summary(const std::string &pre) const;
 
-        void compute(double &ener,
+        void compute(const int natoms,
+                     const std::vector<double> &box,
+                     double &ener,
                      std::vector<double> &force,
                      std::vector<double> &atom_energy,
                      const std::vector<double> &coord,
-                     const std::vector<int> &atype,
-                     const std::vector<double> &box);
+                     const std::vector<int> &atype);
+
+        void distance(auto x1, auto x2,
+                      auto h, auto hinv, double &rsq);
 
         double cutoff;
         torch::jit::Module nequipmodel;

@@ -31,19 +31,27 @@ CONTAINS
       INTEGER :: i,j
       DOUBLE PRECISION, DIMENSION(natoms*3), INTENT(IN) :: dcoord
       DOUBLE PRECISION, DIMENSION(9), INTENT(IN) :: dbox
-   !   INTEGER, DIMENSION(natoms), INTENT(OUT) :: nlist_arr
+      INTEGER, DIMENSION(natoms), INTENT(OUT) :: nlist
+      INTEGER, DIMENSION(natoms), INTENT(OUT) :: list
+      
       DOUBLE PRECISION, DIMENSION(3,3) :: dmatbox
       DOUBLE PRECISION, DIMENSION(natoms,3) :: dmatcoord
       DOUBLE PRECISION, DIMENSION(3) :: dx
       DOUBLE PRECISION :: cutoff
-
+ 
       dmatbox = reshape( dbox, (/ 3, 3 /) )
       dmatcoord = transpose(reshape(dcoord,(/3,natoms/) ))
   
       DO i = 1, natoms -1
          DO j = i+1, natoms
-           dx(:) = dmatcoord(i,:) - dmatcoord(j,:)
-           CALL pbc_dx(dx,dmatbox)
+            dx(:) = dmatcoord(i,:) - dmatcoord(j,:)
+            CALL pbc_dx(dx,dmatbox)
+            IF (SUM(dx*dx) <= cutoff*cutoff) THEN
+               nlist(i) = nlist(i) + 1
+               nlist(j) = nlist(j) + 1
+               list(i,nlist(i)) = j
+               list(j,nlist(j)) = i
+            ENDIF
          ENDDO
       ENDDO
   

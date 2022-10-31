@@ -33,30 +33,31 @@ void compute_nequip(nequipwrap *neq,
     obj = static_cast<nequip::NequipPot *>(neq->obj);
     // covert array to vector
     double ener = 0.0;
-    int vsize = *vecsize;
-    std::vector<double> force_(vsize * 3, 0.0);
-    std::vector<double> atom_energy_(vsize, 0.0);
-    std::vector<double> coord_(dcoord_, dcoord_ + vsize * 3);
+    int natoms = *vecsize;
+    std::vector<double> force_(natoms * 3, 0.0);
+    std::vector<double> atom_energy_(natoms, 0.0);
+    std::vector<double> coord_(dcoord_, dcoord_ + natoms * 3);
     std::vector<double> box(dbox, dbox + 9);
-    std::vector<int> atype_(datype_, datype_ + vsize);
+    std::vector<int> atype_(datype_, datype_ + natoms);
 
     std::cout << "define ok" << std::endl;
 
-    obj->compute(ener,
+    obj->compute(natoms,
+                 box,
+                 ener,
                  force_,
                  atom_energy_,
                  coord_,
-                 atype_,
-                 box);
+                 atype_);
 
     //	cout << "input ok" << endl;
     *dener = ener;
     //	cout << "energy is " << *dener << endl;
-    for (int i = 0; i < vsize * 3; i++)
+    for (int i = 0; i < natoms * 3; i++)
     {
         dforce[i] = force_[i];
     }
-    for (int i = 0; i < vsize; i++)
+    for (int i = 0; i < natoms; i++)
     {
         datom_ener[i] = atom_energy_[i];
     }
