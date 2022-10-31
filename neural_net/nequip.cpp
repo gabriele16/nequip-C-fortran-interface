@@ -78,15 +78,15 @@ void NequipPot::
 }
 
 void NequipPot::
-    distance(auto x1, auto x2,
-             auto h, auto hinv, double &rsq)
+    distance(torch::Tensor x1, torch::Tensor x2,
+             torch::Tensor h, torch::Tensor hinv, double &rsq)
 {
 
-  torch::Tensor s1 = torch::dot(hinv, x1);
-  torch::Tensor s2 = torch::dot(hinv, x2);
-  torch::Tensor s21 = s2 - s1;
+  auto s1 = torch::matmul(hinv, x1);
+  auto s2 = torch::matmul(hinv, x2);
+  auto s21 = s2 - s1;
   s21 = s21 - torch::round(s21);
-  torch::Tensor r21 = torch::dot(h, s21);
+  auto r21 = torch::matmul(h, s21);
   rsq = torch::dot(r21, r21).item<double>();
 }
 
@@ -114,6 +114,8 @@ void NequipPot::
   //  auto tag2type = tag2type_tensor.accessor<long, 1>();
   auto periodic_shift = periodic_shift_tensor.accessor<float, 1>();
   auto cell = cell_tensor.accessor<float, 2>();
+  auto x1 = x1_tensor.accessor<float, 1>();
+  auto x2 = x2_tensor.accessor<float, 1>();
 
   // Get cell
   int ii = 0;
@@ -135,7 +137,7 @@ void NequipPot::
 
   auto cell_inv = cell_tensor.inverse().transpose(0, 1);
 
-  for (int i = 0; i < 3 * natoms; i++)
+  for (int i = 0; i < natoms; i++)
   {
     pos[i][0] = x[i * 3];
     pos[i][1] = x[i * 3 + 1];
@@ -144,12 +146,15 @@ void NequipPot::
 
   for (int ii = 0; ii < natoms; ii++)
   {
-    auto x1 = pos.slice(ii).accessor<float, 3>();
+    x1[0] = pos[ii][0];
+    x1[1] = pos[ii][1];
+    x1[2] = pos[ii][2];
     for (int jj = 0; jj < natoms; jj++)
     {
-      auto x2 = pos.slice(jj).accessor<float, 3>();
-      // distance(x1, x2, cell, cell_inv, rsq);
-      // std::cout << rsq << std::endl;
+      x2[0] = pos[jj][0];
+      x2[1] = pos[jj][1];
+      x2[2] = pos[jj][2];
+      distance(x1_tensor, x2_tensor, cell_tensor, cell_inv, rsq);
     }
   }
 

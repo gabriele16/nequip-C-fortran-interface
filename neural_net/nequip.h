@@ -23,8 +23,8 @@ namespace nequip
                      const std::vector<double> &coord,
                      const std::vector<int> &atype);
 
-        void distance(auto x1, auto x2,
-                      auto h, auto hinv, double &rsq);
+        void distance(torch::Tensor x1, torch::Tensor x2,
+                      torch::Tensor h, torch::Tensor hinv, double &rsq);
 
         double cutoff;
         torch::jit::Module nequipmodel;

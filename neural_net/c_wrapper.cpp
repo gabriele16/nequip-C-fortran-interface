@@ -50,7 +50,7 @@ void compute_nequip(nequipwrap *neq,
                  coord_,
                  atype_);
 
-    //	cout << "input ok" << endl;
+    std::cout << "input ok" << std::endl;
     *dener = ener;
     //	cout << "energy is " << *dener << endl;
     for (int i = 0; i < natoms * 3; i++)
