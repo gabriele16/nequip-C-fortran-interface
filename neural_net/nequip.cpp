@@ -81,13 +81,20 @@ void NequipPot::
     distance(torch::Tensor x1, torch::Tensor x2,
              torch::Tensor h, torch::Tensor hinv, double &rsq)
 {
-
   auto s1 = torch::matmul(hinv, x1);
   auto s2 = torch::matmul(hinv, x2);
   auto s21 = s2 - s1;
   s21 = s21 - torch::round(s21);
   auto r21 = torch::matmul(h, s21);
   rsq = torch::dot(r21, r21).item<double>();
+}
+
+void NequipPot::wrap_positions(torch::Tensor pos, torch::Tensor cell, )
+{
+
+  fractional = np.linalg.solve(cell.transpose(0, 1),
+                               pos.transpose(0, 1))
+                   .transpose(0, 1)
 }
 
 void NequipPot::
@@ -106,6 +113,11 @@ void NequipPot::
   torch::Tensor cell_tensor = torch::zeros({3, 3});
   torch::Tensor x1_tensor = torch::zeros({3});
   torch::Tensor x2_tensor = torch::zeros({3});
+
+  // vector of edges that needs to be populated
+  std::vector<int> edges;
+  int nedges = 0;
+  int edge_counter = 0;
   double rsq = 0.0;
 
   auto pos = pos_tensor.accessor<float, 2>();
@@ -155,8 +167,29 @@ void NequipPot::
       x2[1] = pos[jj][1];
       x2[2] = pos[jj][2];
       distance(x1_tensor, x2_tensor, cell_tensor, cell_inv, rsq);
+      std::cout << "rsq: " << std::sqrt(rsq) << std::endl;
+      if (rsq < cutoff * cutoff)
+      {
+        torch::Tensor cell_shift_tensor = cell_inv.matmul(periodic_shift_tensor);
+        auto cell_shift = cell_shift_tensor.accessor<float, 1>();
+        float *e_vec = &edge_cell_shifts[edge_counter * 3];
+
+        e_vec[0] = std::round(cell_shift[0]);
+        e_vec[1] = std::round(cell_shift[1]);
+        e_vec[2] = std::round(cell_shift[2]);
+
+        edges.push_back(ii);
+        edges.push_back(jj);
+        edge_counter++;
+      }
     }
   }
+
+  // shorten the list before sending to nequip
+  torch::Tensor edges_tensor = torch::zeros({2, edge_counter}, torch::TensorOptions().dtype(torch::kInt64));
+  torch::Tensor edge_cell_shifts_tensor = torch::zeros({edge_counter, 3});
+  auto new_edges = edges_tensor.accessor<long, 2>();
+  auto new_edge_cell_shifts = edge_cell_shifts_tensor.accessor<float, 2>();
 
   // if (debug_mode)
   // {
