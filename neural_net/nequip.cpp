@@ -119,15 +119,18 @@ void NequipPot::
   torch::Tensor x2_tensor = torch::zeros({3});
 
   // vector of edges that needs to be populated
-  std::vector<int> edges;
+  std::vector<long> edges;
+  std::vector<float> edge_cell_shifts;
+  std::vector<float> e_vec(3);
   int nedges = 0;
   int edge_counter = 0;
   double rsq = 0.0;
 
   auto pos = pos_tensor.accessor<float, 2>();
+  auto wrap_pos = wrap_pos_tensor.accessor<float, 2>();
   //  long edges[2 * nedges];
   //  float edge_cell_shifts[3 * nedges];
-  //  auto tag2type = tag2type_tensor.accessor<long, 1>();
+  auto tag2type = tag2type_tensor.accessor<long, 1>();
   auto periodic_shift = periodic_shift_tensor.accessor<float, 1>();
   auto cell = cell_tensor.accessor<float, 2>();
   auto x1 = x1_tensor.accessor<float, 1>();
@@ -146,11 +149,6 @@ void NequipPot::
 
   std::cout << "cell: " << cell_tensor << std::endl;
 
-  for (int i = 0; i < natoms; i++)
-  {
-    std::cout << "atom type " << atype[i] << std::endl;
-  }
-
   auto cell_inv = cell_tensor.inverse().transpose(0, 1);
 
   for (int i = 0; i < natoms; i++)
@@ -158,32 +156,47 @@ void NequipPot::
     pos[i][0] = x[i * 3];
     pos[i][1] = x[i * 3 + 1];
     pos[i][2] = x[i * 3 + 2];
+    tag2type[i] = atype[i];
   }
 
+  std::cout << "atom type " << atype << std::endl;
   wrap_positions(pos_tensor, cell_tensor, wrap_pos_tensor);
 
   // std::cout << "wrapped positions: " << wrap_pos_tensor << std::endl;
 
   for (int ii = 0; ii < natoms; ii++)
   {
-    x1[0] = pos[ii][0];
-    x1[1] = pos[ii][1];
-    x1[2] = pos[ii][2];
+    x1[0] = wrap_pos[ii][0];
+    x1[1] = wrap_pos[ii][1];
+    x1[2] = wrap_pos[ii][2];
     for (int jj = 0; jj < natoms; jj++)
     {
-      x2[0] = pos[jj][0];
-      x2[1] = pos[jj][1];
-      x2[2] = pos[jj][2];
+      x2[0] = wrap_pos[jj][0];
+      x2[1] = wrap_pos[jj][1];
+      x2[2] = wrap_pos[jj][2];
+
+      // The calc. below should really be
+      // x[j][0] - pos[jtag-1][0]
+      // as it calculates the periodic shift
+      // of coordinates due to neighbor lists and domain decomp. in LAMMPS
+      // see https://github.com/mir-group/pair_nequip/blob/main/pair_nequip.cpp
+      periodic_shift[0] = wrap_pos[jj][0] - wrap_pos[jj][0];
+      periodic_shift[1] = wrap_pos[jj][0] - wrap_pos[jj][1];
+      periodic_shift[2] = wrap_pos[jj][0] - wrap_pos[jj][2];
+
       distance(x1_tensor, x2_tensor, cell_tensor, cell_inv, rsq);
       if (rsq < cutoff * cutoff)
       {
         torch::Tensor cell_shift_tensor = cell_inv.matmul(periodic_shift_tensor);
         auto cell_shift = cell_shift_tensor.accessor<float, 1>();
-        // float *e_vec = &edge_cell_shifts[edge_counter * 3];
 
-        // e_vec[0] = std::round(cell_shift[0]);
-        // e_vec[1] = std::round(cell_shift[1]);
-        // e_vec[2] = std::round(cell_shift[2]);
+        e_vec[0] = std::round(cell_shift[0]);
+        e_vec[1] = std::round(cell_shift[1]);
+        e_vec[2] = std::round(cell_shift[2]);
+
+        edge_cell_shifts.push_back(e_vec[0]);
+        edge_cell_shifts.push_back(e_vec[1]);
+        edge_cell_shifts.push_back(e_vec[2]);
 
         edges.push_back(ii);
         edges.push_back(jj);
@@ -193,11 +206,67 @@ void NequipPot::
   }
 
   // shorten the list before sending to nequip
-  // torch::Tensor edges_tensor = torch::zeros({2, edge_counter}, torch::TensorOptions().dtype(torch::kInt64));
-  // torch::Tensor edge_cell_shifts_tensor = torch::zeros({edge_counter, 3});
-  // auto new_edges = edges_tensor.accessor<long, 2>();
-  // auto new_edge_cell_shifts = edge_cell_shifts_tensor.accessor<float, 2>();
+  torch::Tensor edges_tensor = torch::zeros({2, edge_counter}, torch::TensorOptions().dtype(torch::kInt64));
+  torch::Tensor edge_cell_shifts_tensor = torch::zeros({edge_counter, 3});
+  auto new_edges = edges_tensor.accessor<long, 2>();
+  auto new_edge_cell_shifts = edge_cell_shifts_tensor.accessor<float, 2>();
 
+  for (int i = 0; i < edge_counter; i++)
+  {
+    long *e = &edges[i * 2];
+    new_edges[0][i] = e[0];
+    new_edges[1][i] = e[1];
+
+    float *ev = &edge_cell_shifts[i * 3];
+    new_edge_cell_shifts[i][0] = ev[0];
+    new_edge_cell_shifts[i][1] = ev[1];
+    new_edge_cell_shifts[i][2] = ev[2];
+  }
+
+  c10::Dict<std::string, torch::Tensor> input;
+  input.insert("pos", wrap_pos_tensor.to(device));
+  input.insert("edge_index", edges_tensor.to(device));
+  input.insert("edge_cell_shift", edge_cell_shifts_tensor.to(device));
+  input.insert("cell", cell_tensor.to(device));
+  input.insert("atom_types", tag2type_tensor.to(device));
+  std::vector<torch::IValue> input_vector(1, input);
+
+  if (debug_mode)
+  {
+    std::cout << "NequIP model input:\n";
+    std::cout << "pos:\n"
+              << wrap_pos_tensor << "\n";
+    std::cout << "edge_index:\n"
+              << edges_tensor << "\n";
+    std::cout << "edge_cell_shifts:\n"
+              << edge_cell_shifts_tensor << "\n";
+    std::cout << "cell:\n"
+              << cell_tensor << "\n";
+    std::cout << "atom_types:\n"
+              << tag2type_tensor << "\n";
+  }
+
+  auto output = nequipmodel.forward(input_vector).toGenericDict();
+
+  torch::Tensor forces_tensor = output.at("forces").toTensor().cpu();
+  auto forces = forces_tensor.accessor<float, 2>();
+
+  torch::Tensor total_energy_tensor = output.at("total_energy").toTensor().cpu();
+
+  // store the total energy where LAMMPS wants it
+  // eng_vdwl = total_energy_tensor.data_ptr<float>()[0];
+
+  torch::Tensor atomic_energy_tensor = output.at("atomic_energy").toTensor().cpu();
+  auto atomic_energies = atomic_energy_tensor.accessor<float, 2>();
+  float atomic_energy_sum = atomic_energy_tensor.sum().data_ptr<float>()[0];
+
+  if (debug_mode)
+  {
+    std::cout << "NequIP model output:\n";
+    std::cout << "forces: " << forces_tensor << "\n";
+    std::cout << "total_energy: " << total_energy_tensor << "\n";
+    std::cout << "atomic_energy: " << atomic_energy_tensor << "\n";
+  }
   // if (debug_mode)
   // {
   //   for (const auto &p : nequipmodel.parameters())
