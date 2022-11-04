@@ -69,6 +69,8 @@ void NequipPot::
 
   cutoff = std::stod(metadata["r_max"]);
 
+  std::cout << "r_max: " << cutoff << std::endl;
+
   // Freeze the model. Improve efficiency. Do only later.
   // if (nequipmodel.hasattr("training"))
   // {
@@ -127,7 +129,6 @@ void NequipPot::
   double rsq = 0.0;
 
   auto pos = pos_tensor.accessor<float, 2>();
-  auto wrap_pos = wrap_pos_tensor.accessor<float, 2>();
   //  long edges[2 * nedges];
   //  float edge_cell_shifts[3 * nedges];
   auto tag2type = tag2type_tensor.accessor<long, 1>();
@@ -156,53 +157,79 @@ void NequipPot::
     pos[i][0] = x[i * 3];
     pos[i][1] = x[i * 3 + 1];
     pos[i][2] = x[i * 3 + 2];
-    tag2type[i] = atype[i];
+    // atom type is 0-based in nequip but 1-based in LAMMPS
+    // make sure how it is in CP2K
+    tag2type[i] = atype[i] - 1;
   }
 
   std::cout << "atom type " << atype << std::endl;
   wrap_positions(pos_tensor, cell_tensor, wrap_pos_tensor);
 
-  // std::cout << "wrapped positions: " << wrap_pos_tensor << std::endl;
+  std::cout << "wrapped positions: " << wrap_pos_tensor << std::endl;
 
+  // need to define the accessor after wrapping!
+  auto wrap_pos = wrap_pos_tensor.accessor<float, 2>();
+
+  int jnum = 0;
   for (int ii = 0; ii < natoms; ii++)
   {
     x1[0] = wrap_pos[ii][0];
     x1[1] = wrap_pos[ii][1];
     x1[2] = wrap_pos[ii][2];
+
+    // x1[0] = pos[ii][0];
+    // x1[1] = pos[ii][1];
+    // x1[2] = pos[ii][2];
+
+    jnum = 0;
     for (int jj = 0; jj < natoms; jj++)
     {
-      x2[0] = wrap_pos[jj][0];
-      x2[1] = wrap_pos[jj][1];
-      x2[2] = wrap_pos[jj][2];
-
-      // The calc. below should really be
-      // x[j][0] - pos[jtag-1][0]
-      // as it calculates the periodic shift
-      // of coordinates due to neighbor lists and domain decomp. in LAMMPS
-      // see https://github.com/mir-group/pair_nequip/blob/main/pair_nequip.cpp
-      periodic_shift[0] = wrap_pos[jj][0] - wrap_pos[jj][0];
-      periodic_shift[1] = wrap_pos[jj][0] - wrap_pos[jj][1];
-      periodic_shift[2] = wrap_pos[jj][0] - wrap_pos[jj][2];
-
-      distance(x1_tensor, x2_tensor, cell_tensor, cell_inv, rsq);
-      if (rsq < cutoff * cutoff)
+      if (ii != jj)
       {
-        torch::Tensor cell_shift_tensor = cell_inv.matmul(periodic_shift_tensor);
-        auto cell_shift = cell_shift_tensor.accessor<float, 1>();
+        x2[0] = wrap_pos[jj][0];
+        x2[1] = wrap_pos[jj][1];
+        x2[2] = wrap_pos[jj][2];
 
-        e_vec[0] = std::round(cell_shift[0]);
-        e_vec[1] = std::round(cell_shift[1]);
-        e_vec[2] = std::round(cell_shift[2]);
+        // x2[0] = pos[jj][0];
+        // x2[1] = pos[jj][1];
+        // x2[2] = pos[jj][2];
 
-        edge_cell_shifts.push_back(e_vec[0]);
-        edge_cell_shifts.push_back(e_vec[1]);
-        edge_cell_shifts.push_back(e_vec[2]);
+        // The calc. below should really be
+        // x[j][0] - pos[jtag-1][0]
+        // as it calculates the periodic shift
+        // of coordinates due to neighbor lists and domain decomp. in LAMMPS
+        // see https://github.com/mir-group/pair_nequip/blob/main/pair_nequip.cpp
 
-        edges.push_back(ii);
-        edges.push_back(jj);
-        edge_counter++;
+        periodic_shift[0] = wrap_pos[jj][0] - wrap_pos[jj][0];
+        periodic_shift[1] = wrap_pos[jj][1] - wrap_pos[jj][1];
+        periodic_shift[2] = wrap_pos[jj][2] - wrap_pos[jj][2];
+
+        distance(x1_tensor, x2_tensor, cell_tensor, cell_inv, rsq);
+        std::cout << "x1: " << x1[0] << std::endl;
+        std::cout << "x2: " << x2[0] << std::endl;
+        std::cout << "rsq: " << sqrt(rsq) << std::endl;
+
+        if (rsq < cutoff * cutoff)
+        {
+          torch::Tensor cell_shift_tensor = cell_inv.matmul(periodic_shift_tensor);
+          auto cell_shift = cell_shift_tensor.accessor<float, 1>();
+
+          e_vec[0] = std::round(cell_shift[0]);
+          e_vec[1] = std::round(cell_shift[1]);
+          e_vec[2] = std::round(cell_shift[2]);
+
+          edge_cell_shifts.push_back(e_vec[0]);
+          edge_cell_shifts.push_back(e_vec[1]);
+          edge_cell_shifts.push_back(e_vec[2]);
+
+          edges.push_back(ii);
+          edges.push_back(jj);
+          edge_counter++;
+          jnum++;
+        }
       }
     }
+    std::cout << "num neigh: " << jnum << "x1[0]: " << x1[0] << std::endl;
   }
 
   // shorten the list before sending to nequip
@@ -210,6 +237,8 @@ void NequipPot::
   torch::Tensor edge_cell_shifts_tensor = torch::zeros({edge_counter, 3});
   auto new_edges = edges_tensor.accessor<long, 2>();
   auto new_edge_cell_shifts = edge_cell_shifts_tensor.accessor<float, 2>();
+
+  std::cout << "edge_counter: " << edge_counter << std::endl;
 
   for (int i = 0; i < edge_counter; i++)
   {
