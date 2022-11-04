@@ -26,6 +26,9 @@ namespace nequip
         void distance(torch::Tensor x1, torch::Tensor x2,
                       torch::Tensor h, torch::Tensor hinv, double &rsq);
 
+        void wrap_positions(torch::Tensor pos, torch::Tensor cell,
+                            torch::Tensor &wrapped_positions);
+
         double cutoff;
         torch::jit::Module nequipmodel;
         torch::Device device = torch::kCPU;
