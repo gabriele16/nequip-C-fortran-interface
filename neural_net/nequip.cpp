@@ -226,10 +226,11 @@ void NequipPot::
           edges.push_back(jj);
           edge_counter++;
           jnum++;
+          std::cout << "edge_i: " << ii << " edge_j: " << jj << std::endl;
         }
       }
     }
-    std::cout << "num neigh: " << jnum << "x1[0]: " << x1[0] << std::endl;
+    std::cout << "atom_id: " << ii << " num_neigh: " << jnum << " x: " << x1[0] << std::endl;
   }
 
   // shorten the list before sending to nequip
