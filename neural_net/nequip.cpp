@@ -91,7 +91,6 @@ void NequipPot::
   cell_shift = torch::round(s12);
   s12 = s12 - cell_shift;
   dx_vec = torch::matmul(h, s12);
-  //  rsq = torch::dot(r21, r21).item<double>();
 }
 
 void NequipPot::wrap_positions(torch::Tensor pos, torch::Tensor cell,
@@ -100,6 +99,7 @@ void NequipPot::wrap_positions(torch::Tensor pos, torch::Tensor cell,
   auto fractional = torch::linalg_solve(cell.transpose(0, 1),
                                         pos.transpose(0, 1))
                         .transpose(0, 1);
+
   auto frac_shifted_pos = torch::remainder(fractional, 1.0);
   wrapped_positions = torch::matmul(frac_shifted_pos, cell);
 }
@@ -167,10 +167,10 @@ void NequipPot::
     tag2type[i] = atype[i] - 1;
   }
 
-  std::cout << "atom type " << atype << std::endl;
+  // std::cout << "atom type " << atype << std::endl;
   wrap_positions(pos_tensor, cell_tensor, wrap_pos_tensor);
 
-  std::cout << "wrapped positions: " << wrap_pos_tensor << std::endl;
+  // std::cout << "wrapped positions: " << wrap_pos_tensor << std::endl;
 
   // need to define the accessor after wrapping!
   auto wrap_pos = wrap_pos_tensor.accessor<float, 2>();
@@ -182,10 +182,6 @@ void NequipPot::
     x1[1] = wrap_pos[ii][1];
     x1[2] = wrap_pos[ii][2];
 
-    // x1[0] = pos[ii][0];
-    // x1[1] = pos[ii][1];
-    // x1[2] = pos[ii][2];
-
     jnum = 0;
     for (int jj = 0; jj < natoms; jj++)
     {
@@ -195,31 +191,26 @@ void NequipPot::
         x2[1] = wrap_pos[jj][1];
         x2[2] = wrap_pos[jj][2];
 
-        // x2[0] = pos[jj][0];
-        // x2[1] = pos[jj][1];
-        // x2[2] = pos[jj][2];
-
         // The calc. below should really be
         // x[j][0] - pos[jtag-1][0]
         // as it calculates the periodic shift
         // of coordinates due to neighbor lists and domain decomp. in LAMMPS
         // see https://github.com/mir-group/pair_nequip/blob/main/pair_nequip.cpp
 
-        periodic_shift[0] = wrap_pos[jj][0] - wrap_pos[jj][0];
-        periodic_shift[1] = wrap_pos[jj][1] - wrap_pos[jj][1];
-        periodic_shift[2] = wrap_pos[jj][2] - wrap_pos[jj][2];
+        // periodic_shift[0] = wrap_pos[jj][0] - wrap_pos[jj][0];
+        // periodic_shift[1] = wrap_pos[jj][1] - wrap_pos[jj][1];
+        // periodic_shift[2] = wrap_pos[jj][2] - wrap_pos[jj][2];
 
         distance_vec_and_shifts(x1_tensor, x2_tensor, cell_tensor, cell_inv_tensor,
                                 dx_vec_tensor, cell_shift_tensor);
 
-        dx_vec = dx_vec_tensor.accessor<float, 1>();
         rsq = torch::dot(dx_vec_tensor, dx_vec_tensor).item<double>();
 
-        std::cout << "x1: " << x1[0] << std::endl;
-        std::cout << "x2: " << x2[0] << std::endl;
-        std::cout << "dx_vec" << dx_vec_tensor << std::endl;
-        std::cout << "cell_shift_tensor" << cell_shift_tensor << std::endl;
-        std::cout << "rsq: " << sqrt(rsq) << std::endl;
+        // std::cout << "x1: " << x1[0] << std::endl;
+        // std::cout << "x2: " << x2[0] << std::endl;
+        // std::cout << "dx_vec" << dx_vec_tensor << std::endl;
+        // std::cout << "cell_shift_tensor" << cell_shift_tensor << std::endl;
+        // std::cout << "rsq: " << sqrt(rsq) << std::endl;
 
         if (rsq < cutoff * cutoff)
         {
@@ -237,20 +228,22 @@ void NequipPot::
           edges.push_back(jj);
           edge_counter++;
           jnum++;
-          std::cout << "edge_i: " << ii << " edge_j: " << jj << std::endl;
+          // std::cout << "edge_i: " << ii << " edge_j: " << jj << std::endl;
         }
       }
     }
-    std::cout << "atom_id: " << ii << " num_neigh: " << jnum << " x: " << x1[0] << std::endl;
+    // std::cout << "atom_id: " << ii << " num_neigh: " << jnum << " x: " << x1[0] << std::endl;
   }
 
   // shorten the list before sending to nequip
+  // the following stuff is probably redundant
+  // if we don't use neighborlist, we keep it for now.
   torch::Tensor edges_tensor = torch::zeros({2, edge_counter}, torch::TensorOptions().dtype(torch::kInt64));
   torch::Tensor edge_cell_shifts_tensor = torch::zeros({edge_counter, 3});
   auto new_edges = edges_tensor.accessor<long, 2>();
   auto new_edge_cell_shifts = edge_cell_shifts_tensor.accessor<float, 2>();
 
-  std::cout << "edge_counter: " << edge_counter << std::endl;
+  //  std::cout << "edge_counter: " << edge_counter << std::endl;
 
   for (int i = 0; i < edge_counter; i++)
   {
@@ -294,9 +287,6 @@ void NequipPot::
 
   torch::Tensor total_energy_tensor = output.at("total_energy").toTensor().cpu();
 
-  // store the total energy where LAMMPS wants it
-  // eng_vdwl = total_energy_tensor.data_ptr<float>()[0];
-
   torch::Tensor atomic_energy_tensor = output.at("atomic_energy").toTensor().cpu();
   auto atomic_energies = atomic_energy_tensor.accessor<float, 2>();
   float atomic_energy_sum = atomic_energy_tensor.sum().data_ptr<float>()[0];
@@ -308,12 +298,4 @@ void NequipPot::
     std::cout << "total_energy: " << total_energy_tensor << "\n";
     std::cout << "atomic_energy: " << atomic_energy_tensor << "\n";
   }
-  // if (debug_mode)
-  // {
-  //   for (const auto &p : nequipmodel.parameters())
-  //   {
-  //     std::cout << p << std::endl;
-  //   }
-  //   std::cout << "cutoff: " << cutoff << std::endl;
-  // }
 }
