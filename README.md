@@ -1,7 +1,7 @@
-# nequip-C-fortran-interface
+# NequIP-C/C++-Fortran-interface
 Fortran - C/C++ interface for NequIP.
 
-Interface between Fortran, C and the [C++ frontend of Pytorch](https://pytorch.org/tutorials/advanced/cpp_frontend.html) for the [NequIP](https://github.com/mir-group/nequip)) code. 
+Interface between Fortran, C and the [C++ frontend of Pytorch](https://pytorch.org/tutorials/advanced/cpp_frontend.html) for the [NequIP](https://github.com/mir-group/nequip) code. 
 
 The interface is built following the [DeePMD-kit-Fortran-Cpp-interface](https://github.com/Cloudac7/DeePMD-kit-Fortran-Cpp-interface) as well as the LAMMPS interface [pair_nequip interface](https://github.com/mir-group/pair_nequip). The plan is to merge the interface to [CP2K](https://github.com/cp2k/cp2k).
 

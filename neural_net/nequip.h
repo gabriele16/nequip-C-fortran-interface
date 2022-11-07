@@ -14,6 +14,7 @@ namespace nequip
         NequipPot(const std::string &model);
         void init(const std::string &model);
         void print_summary(const std::string &pre) const;
+
         void compute(const int natoms,
                      const std::vector<double> &box,
                      double &ener,
@@ -21,8 +22,12 @@ namespace nequip
                      std::vector<double> &atom_energy,
                      const std::vector<double> &coord,
                      const std::vector<int> &atype);
-        void distance(torch::Tensor x1, torch::Tensor x2,
-                      torch::Tensor h, torch::Tensor hinv, double &rsq);
+
+        void distance_vec_and_shifts(torch::Tensor x1, torch::Tensor x2,
+                                     torch::Tensor h, torch::Tensor hinv,
+                                     torch::Tensor &dx_vec,
+                                     torch::Tensor &cell_shift);
+
         void wrap_positions(torch::Tensor pos, torch::Tensor cell,
                             torch::Tensor &wrapped_positions);
 

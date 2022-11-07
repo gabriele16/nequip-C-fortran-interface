@@ -80,21 +80,23 @@ void NequipPot::
 }
 
 void NequipPot::
-    distance(torch::Tensor x1, torch::Tensor x2,
-             torch::Tensor h, torch::Tensor hinv, double &rsq)
+    distance_vec_and_shifts(torch::Tensor x1, torch::Tensor x2,
+                            torch::Tensor h, torch::Tensor hinv,
+                            torch::Tensor &dx_vec,
+                            torch::Tensor &cell_shift)
 {
   auto s1 = torch::matmul(hinv, x1);
   auto s2 = torch::matmul(hinv, x2);
-  auto s21 = s2 - s1;
-  s21 = s21 - torch::round(s21);
-  auto r21 = torch::matmul(h, s21);
-  rsq = torch::dot(r21, r21).item<double>();
+  auto s12 = s1 - s2;
+  cell_shift = torch::round(s12);
+  s12 = s12 - cell_shift;
+  dx_vec = torch::matmul(h, s12);
+  //  rsq = torch::dot(r21, r21).item<double>();
 }
 
 void NequipPot::wrap_positions(torch::Tensor pos, torch::Tensor cell,
                                torch::Tensor &wrapped_positions)
 {
-
   auto fractional = torch::linalg_solve(cell.transpose(0, 1),
                                         pos.transpose(0, 1))
                         .transpose(0, 1);
@@ -119,6 +121,8 @@ void NequipPot::
   torch::Tensor cell_tensor = torch::zeros({3, 3});
   torch::Tensor x1_tensor = torch::zeros({3});
   torch::Tensor x2_tensor = torch::zeros({3});
+  torch::Tensor dx_vec_tensor = torch::zeros({3});
+  torch::Tensor cell_shift_tensor = torch::zeros({3});
 
   // vector of edges that needs to be populated
   std::vector<long> edges;
@@ -136,6 +140,7 @@ void NequipPot::
   auto cell = cell_tensor.accessor<float, 2>();
   auto x1 = x1_tensor.accessor<float, 1>();
   auto x2 = x2_tensor.accessor<float, 1>();
+  auto dx_vec = dx_vec_tensor.accessor<float, 1>();
 
   // Get cell
   int ii = 0;
@@ -150,7 +155,7 @@ void NequipPot::
 
   std::cout << "cell: " << cell_tensor << std::endl;
 
-  auto cell_inv = cell_tensor.inverse().transpose(0, 1);
+  auto cell_inv_tensor = cell_tensor.inverse().transpose(0, 1);
 
   for (int i = 0; i < natoms; i++)
   {
@@ -204,14 +209,20 @@ void NequipPot::
         periodic_shift[1] = wrap_pos[jj][1] - wrap_pos[jj][1];
         periodic_shift[2] = wrap_pos[jj][2] - wrap_pos[jj][2];
 
-        distance(x1_tensor, x2_tensor, cell_tensor, cell_inv, rsq);
+        distance_vec_and_shifts(x1_tensor, x2_tensor, cell_tensor, cell_inv_tensor,
+                                dx_vec_tensor, cell_shift_tensor);
+
+        dx_vec = dx_vec_tensor.accessor<float, 1>();
+        rsq = torch::dot(dx_vec_tensor, dx_vec_tensor).item<double>();
+
         std::cout << "x1: " << x1[0] << std::endl;
         std::cout << "x2: " << x2[0] << std::endl;
+        std::cout << "dx_vec" << dx_vec_tensor << std::endl;
+        std::cout << "cell_shift_tensor" << cell_shift_tensor << std::endl;
         std::cout << "rsq: " << sqrt(rsq) << std::endl;
 
         if (rsq < cutoff * cutoff)
         {
-          torch::Tensor cell_shift_tensor = cell_inv.matmul(periodic_shift_tensor);
           auto cell_shift = cell_shift_tensor.accessor<float, 1>();
 
           e_vec[0] = std::round(cell_shift[0]);
