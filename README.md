@@ -17,15 +17,15 @@ The following installation script will run `pip3 install requirements.txt` and r
 ```
 ./install_interface.sh
 ```
-### Basic Neural Network Calculation
-To load the nequip model `water-deploy.pth` using Fortran-C/C++ interface with the PyTorch C++ Frontend simply do: 
+### Running the code
+To perform inference with nequip on a 32 water molecules box using the model `water-deploy.pth` with the Fortran-C/C++ interface and the PyTorch C++ Frontend simply do: 
 ```
-cd neural_net
+cd nequip_interface
 ./build/call_nequip_interface_fort
 ```
-Instead, to load the nequip model `water-deploy.pth` using just the C/C++ interface with the PyTorch C++ Frontend simply do: 
+Instead, to do it just with the C/C++ interface and Pytorch C++ Frontend do: 
 ```
-cd neural_net
+cd nequip_interface
 ./build/call_nequip_interface
 ```
 

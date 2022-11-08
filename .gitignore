@@ -39,8 +39,10 @@ libtorch/
 
 # zip files
 *.zip
+
 #vscode configuration file
 .vscode
+
 #log and garbage
 *out*
 *.dat
