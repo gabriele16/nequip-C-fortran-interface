@@ -39,4 +39,4 @@ cd neural_net
 * write minimal neighbor lists subroutine in Fortran and then pass this list to the C/C++ code to be finally able to perform inference using the `compute_nequip` function inside nequip_wrapper.cpp. For now the module `neighnborlists.f90` only computes distances. This is how it would be done once Nequip is implemented in CP2K.
 
 ### Note:
-* Right now I have bypassed the calculation with neighborlist, as the only thing that is required is to a double loop over atoms to calculate neighbors within the a cutoff and get the indixes of the connected atom pairs (edges), and the cell_shifts identifying whether the connection from first to second crosses a periodic boundary. 
+* Right now I have bypassed the calculation with neighborlist, as the only thing that is required is to do a double loop over atoms to calculate neighbors within a cutoff to get the indixes of the connected atom pairs (edges) and the cell_shifts identifying whether the connection from first to second crosses a periodic boundary. 
