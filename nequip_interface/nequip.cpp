@@ -153,7 +153,10 @@ void NequipPot::
     }
   }
 
-  std::cout << "cell: " << cell_tensor << std::endl;
+  if (debug_mode)
+  {
+    std::cout << "cell: " << cell_tensor << std::endl;
+  }
 
   auto cell_inv_tensor = cell_tensor.inverse().transpose(0, 1);
 
@@ -176,6 +179,7 @@ void NequipPot::
   auto wrap_pos = wrap_pos_tensor.accessor<float, 2>();
 
   int jnum = 0;
+  std::cout << "About to enter double loop" << std::endl;
   for (int ii = 0; ii < natoms; ii++)
   {
     x1[0] = wrap_pos[ii][0];
@@ -256,6 +260,8 @@ void NequipPot::
     new_edge_cell_shifts[i][1] = ev[1];
     new_edge_cell_shifts[i][2] = ev[2];
   }
+
+  std::cout << "Sending information to Pytorch!" << std::endl;
 
   c10::Dict<std::string, torch::Tensor> input;
   input.insert("pos", wrap_pos_tensor.to(device));

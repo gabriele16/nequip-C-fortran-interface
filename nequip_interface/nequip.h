@@ -37,6 +37,6 @@ namespace nequip
 
     protected:
         int *type_mapper;
-        int debug_mode = 1;
+        int debug_mode = 0;
     };
 }
