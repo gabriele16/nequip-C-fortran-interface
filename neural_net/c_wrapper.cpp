@@ -43,16 +43,17 @@ void compute_nequip(nequipwrap *neq,
     std::cout << "define ok" << std::endl;
 
     obj->compute(natoms,
+                 atype_,
                  box,
-                 ener,
+                 coord_,
                  force_,
                  atom_energy_,
-                 coord_,
-                 atype_);
+                 ener);
 
     std::cout << "input ok" << std::endl;
     *dener = ener;
-    //	cout << "energy is " << *dener << endl;
+    printf("total energy double %.10g\n", *dener);
+
     for (int i = 0; i < natoms * 3; i++)
     {
         dforce[i] = force_[i];
@@ -62,5 +63,5 @@ void compute_nequip(nequipwrap *neq,
         datom_ener[i] = atom_energy_[i];
     }
 
-    //	cout << "this means vector function wrap successfully" << endl;
+    std::cout << "this means vector function wrap successfully" << std::endl;
 }

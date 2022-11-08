@@ -16,12 +16,12 @@ namespace nequip
         void print_summary(const std::string &pre) const;
 
         void compute(const int natoms,
+                     const std::vector<int> &atype,
                      const std::vector<double> &box,
-                     double &ener,
-                     std::vector<double> &force,
+                     const std::vector<double> &x,
+                     std::vector<double> &f,
                      std::vector<double> &atom_energy,
-                     const std::vector<double> &coord,
-                     const std::vector<int> &atype);
+                     double &ener);
 
         void distance_vec_and_shifts(torch::Tensor x1, torch::Tensor x2,
                                      torch::Tensor h, torch::Tensor hinv,

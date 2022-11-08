@@ -106,12 +106,12 @@ void NequipPot::wrap_positions(torch::Tensor pos, torch::Tensor cell,
 
 void NequipPot::
     compute(const int natoms,
+            const std::vector<int> &atype,
             const std::vector<double> &box,
-            double &ener,
-            std::vector<double> &f,
-            std::vector<double> &atom_energy,
             const std::vector<double> &x,
-            const std::vector<int> &atype)
+            std::vector<double> &f,
+            std::vector<double> &atom_ener,
+            double &ener)
 {
 
   torch::Tensor pos_tensor = torch::zeros({natoms, 3});
@@ -286,10 +286,19 @@ void NequipPot::
   auto forces = forces_tensor.accessor<float, 2>();
 
   torch::Tensor total_energy_tensor = output.at("total_energy").toTensor().cpu();
+  ener = total_energy_tensor.item<double>();
 
   torch::Tensor atomic_energy_tensor = output.at("atomic_energy").toTensor().cpu();
-  auto atomic_energies = atomic_energy_tensor.accessor<float, 2>();
+  auto atomic_energy = atomic_energy_tensor.accessor<float, 2>();
   float atomic_energy_sum = atomic_energy_tensor.sum().data_ptr<float>()[0];
+
+  for (int i = 0; i < natoms; i++)
+  {
+    f[i * 3] = forces[i][0];
+    f[i * 3 + 1] = forces[i][1];
+    f[i * 3 + 2] = forces[i][2];
+    atom_ener[i] = atomic_energy[i][0];
+  }
 
   if (debug_mode)
   {
