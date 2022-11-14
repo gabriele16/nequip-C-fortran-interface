@@ -306,11 +306,31 @@ void NequipPot::
     atom_ener[i] = atomic_energy[i][0];
   }
 
+  // Virial not yet implemented
+  // if (vflag)
+  // {
+  //   torch::Tensor v_tensor = output.at("virial").toTensor().cpu();
+  //   auto v = v_tensor.accessor<float, 3>();
+  //   // Convert from 3x3 symmetric tensor format, which NequIP outputs, to the flattened form LAMMPS expects
+  //   // First [0] index on v is batch
+  //   virial[0] = v[0][0][0];
+  //   virial[1] = v[0][1][1];
+  //   virial[2] = v[0][2][2];
+  //   virial[3] = v[0][0][1];
+  //   virial[4] = v[0][0][2];
+  //   virial[5] = v[0][1][2];
+  // }
+
   if (debug_mode)
   {
     std::cout << "NequIP model output:\n";
     std::cout << "forces: " << forces_tensor << "\n";
     std::cout << "total_energy: " << total_energy_tensor << "\n";
     std::cout << "atomic_energy: " << atomic_energy_tensor << "\n";
+    // Virial not yet implemented
+    //  if (vflag)
+    //{
+    //    std::cout << "virial: " << output.at("virial").toTensor().cpu() << std::endl;
+    //  }
   }
 }
