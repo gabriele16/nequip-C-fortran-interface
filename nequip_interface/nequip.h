@@ -6,7 +6,7 @@
 namespace nequip
 {
     /**
-     * @brief Deep Potential.
+     * @brief nequIP potential.
      **/
     class NequipPot
     {

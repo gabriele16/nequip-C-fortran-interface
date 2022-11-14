@@ -15,20 +15,20 @@ extern "C"
 {
 #endif
     // define a new data type, this struct allows us to use it a safe way in C.
-    struct NEQUIPWRAP
+    struct NEQUIP_NNP
     {
         // obj is the pointer where we store the nequip object.
         void *obj;
         //    torch::jit::script::Module obj;
     };
 
-    typedef struct NEQUIPWRAP nequipwrap;
+    typedef struct NEQUIP_NNP nequip_nnp;
 
-    nequipwrap *create_nequip(char *model);
+    nequip_nnp *create_nequip(char *model);
 
-    void delete_nequip(nequipwrap *neq);
+    void delete_nequip(nequip_nnp *neq);
 
-    void compute_nequip(nequipwrap *neq, int *vecsize, double *dener, double *dforce,
+    void compute_nequip(nequip_nnp *neq, int *vecsize, double *dener, double *dforce,
                         double *datom_ener, double *dcoord_, int *datype_, double *dbox);
 
 #ifdef __cplusplus

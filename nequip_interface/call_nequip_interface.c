@@ -3,7 +3,7 @@
 #include "c_wrapper.h"
 int main(){
    char model[] = "water-deploy.pth";
-   nequipwrap *neq = create_nequip(model);
+   nequip_nnp *neq = create_nequip(model);
 //    printf("loaded model name: %s\n", neq->model);
 //    printf("cutoff %f\n",neq->cutoff);
 //    printf("load potential successfully\n");

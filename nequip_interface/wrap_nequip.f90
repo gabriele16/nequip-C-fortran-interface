@@ -24,7 +24,7 @@ MODULE wrap_nequip
 
    IMPLICIT NONE   
    PRIVATE
-   PUBLIC :: nequipwrap, create_nequip, delete_nequip_c, compute_nequip
+   PUBLIC :: nequip_nnp, create_nequip, delete_nequip_c, compute_nequip
 
    INTERFACE
       FUNCTION create_nequip_c(model) BIND(C, name="create_nequip")
@@ -53,7 +53,7 @@ MODULE wrap_nequip
           TYPE(C_PTR), INTENT(IN), VALUE :: dbox
        END SUBROUTINE
    END INTERFACE
-     TYPE nequipwrap
+     TYPE nequip_nnp
              TYPE(C_PTR) :: ptr
      END TYPE
      
@@ -61,7 +61,7 @@ CONTAINS
 
    FUNCTION create_nequip(model)
       IMPLICIT NONE
-      TYPE(nequipwrap) :: create_nequip
+      TYPE(nequip_nnp) :: create_nequip
       CHARACTER(len=*), INTENT(IN), TARGET :: model
       CHARACTER(len=1, kind=C_CHAR) :: c_model(LEN_TRIM(model) + 1)
       INTEGER   :: N,i 

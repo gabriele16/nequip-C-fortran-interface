@@ -4,20 +4,20 @@
 #include "c_wrapper.h"
 
 // create wrapper function for constructor in NEQUIP
-nequipwrap *create_nequip(char *model)
+nequip_nnp *create_nequip(char *model)
 {
-    nequipwrap *neq;
+    nequip_nnp *neq;
     nequip::NequipPot *obj;
     neq = (typeof(neq))malloc(sizeof(*neq));
     obj = new nequip::NequipPot(model);
     neq->obj = obj;
     return neq;
 }
-void delete_nequip(nequipwrap *neq)
+void delete_nequip(nequip_nnp *neq)
 {
     free(neq);
 }
-void compute_nequip(nequipwrap *neq,
+void compute_nequip(nequip_nnp *neq,
                     int *vecsize,
                     double *dener,
                     double *dforce,

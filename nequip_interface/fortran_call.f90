@@ -2,7 +2,7 @@ PROGRAM fortran_call
     USE wrap_nequip
 !     USE neighborslist
     IMPLICIT NONE
-    TYPE(nequipwrap) :: pot
+    TYPE(nequip_nnp) :: pot
     INTEGER :: vecsize
     INTEGER,TARGET,ALLOCATABLE :: atype(:)
     REAL(8), TARGET,ALLOCATABLE :: coord(:)
