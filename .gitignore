@@ -47,3 +47,7 @@ libtorch/
 *out*
 *.dat
 *.swp
+
+#libtorch archive and directory
+*.zip
+libtorch
