@@ -28,13 +28,13 @@ MODULE wrap_nequip
 
    INTERFACE
       FUNCTION create_nequip_c(model) BIND(C, name="create_nequip")
-         USE ISO_C_BINDING
+         USE ISO_C_BINDING, ONLY: C_CHAR, C_PTR
          IMPLICIT NONE
          TYPE(C_PTR)                    :: create_nequip_c
-         CHARACTER(LEN=1, KIND=C_CHAR)         :: model(*)
+         CHARACTER(KIND=C_CHAR)         :: model(*)
       END FUNCTION
       SUBROUTINE delete_nequip_c(nequip) BIND(C, name="delete_nequip")
-         USE ISO_C_BINDING
+         USE ISO_C_BINDING, ONLY: C_PTR
          IMPLICIT NONE
          TYPE(C_PTR), INTENT(IN), VALUE   :: nequip 
       END SUBROUTINE
