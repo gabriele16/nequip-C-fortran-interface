@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include "c_wrapper.h"
+#include "nequip_wrapper.h"
 int main(){
    char model[] = "water-deploy.pth";
    nequip_nnp *neq = create_nequip(model);
